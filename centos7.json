@@ -1,0 +1,105 @@
+{
+  "variables": {
+      "boot_wait": "5s",
+      "disk_size": "40960",
+      "iso_checksum_type": "sha256",
+      "iso_checksum": "bba314624956961a2ea31dd460cd860a77911c1e0a56e4820a12b9c5dad363f5",
+      "iso_url": "http://miroir.univ-paris13.fr/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1708.iso",
+      "memsize": "1024",
+      "numvcpus": "1",
+      "ssh_password" : "packer",
+      "ssh_username" : "packer",
+      "vm_name": "CentOS-7-x86_64-1708"
+    },
+    "builders": [
+      {
+        "type": "vmware-iso",
+        "boot_command": [
+          "<tab><bs><bs><bs><bs><bs>net.ifnames=0 text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+        ],
+        "boot_wait": "{{ user `boot_wait` }}",
+        "disk_size": "{{ user `disk_size` }}",
+        "disk_type_id": "0",
+        "guest_os_type": "centos-64",
+        "headless": false,
+        "http_directory": "http",
+        "iso_checksum_type": "{{ user `iso_checksum_type` }}",
+        "iso_checksum": "{{ user `iso_checksum` }}",
+        "iso_url": "{{ user `iso_url` }}",
+        "shutdown_command": "echo 'packer'|sudo -S /sbin/halt -h -p",
+        "ssh_password": "{{ user `ssh_password` }}",
+        "ssh_port": 22,
+        "ssh_username": "{{ user `ssh_username` }}",
+        "ssh_wait_timeout": "10000s",
+        "vm_name": "{{ user `vm_name` }}",
+        "vmx_data": {
+          "memsize": "{{ user `memsize` }}",
+          "numvcpus": "{{ user `numvcpus` }}",
+          "virtualHW.version": "14"
+        }
+      },
+      {
+        "type": "virtualbox-iso",
+        "boot_command": [
+          "<tab><bs><bs><bs><bs><bs>net.ifnames=0 text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+        ],
+        "boot_wait": "{{ user `boot_wait` }}",
+        "disk_size": "{{ user `disk_size` }}",
+        "guest_os_type": "RedHat_64",
+        "headless": false,
+        "http_directory": "http",
+        "iso_checksum_type": "{{ user `iso_checksum_type` }}",
+        "iso_checksum": "{{ user `iso_checksum` }}",
+        "iso_url": "{{ user `iso_url` }}",
+        "shutdown_command": "echo 'packer'|sudo -S /sbin/halt -h -p",
+        "ssh_password": "{{ user `ssh_password` }}",
+        "ssh_port": 22,
+        "ssh_username": "{{ user `ssh_username` }}",
+        "ssh_wait_timeout": "10000s",
+        "vm_name": "{{ user `vm_name` }}",
+        "vboxmanage": [
+          ["modifyvm", "{{.Name}}", "--memory", "{{ user `memsize` }}"],
+          ["modifyvm", "{{.Name}}", "--cpus", "{{ user `numvcpus` }}"]
+        ]
+      }
+    ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'packer'|{{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "scripts": [
+        "scripts/packages.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'packer'|{{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "scripts": [
+        "scripts/customize.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "only": ["vmware-iso"],
+      "execute_command": "echo 'packer'|{{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "scripts": [
+          "scripts/vmware.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "only": ["virtualbox-iso"],
+      "execute_command": "echo 'packer'|{{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "scripts": [
+          "scripts/virtualbox.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'packer'|{{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "scripts": [
+        "scripts/cleanup.sh"
+      ]
+    }
+  ]
+}
