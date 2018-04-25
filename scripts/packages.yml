@@ -1,0 +1,29 @@
+---
+- name: "Packages.yml"
+  hosts: all
+  gather_facts: no
+  become: yes
+  tasks:
+  - name: Install epel repo
+    yum:
+      name: "epel-release"
+      state: latest
+  - name: Upgrade all packages
+    yum:
+      name: "*"
+      state: latest
+  - name: Ensure a list of packages installed
+    yum:
+      name: "{{ packages }}"
+      state: latest
+    vars:
+      packages:
+      - bash-completion
+      - ccze
+      - curl
+      - git
+      - rsync
+      - screen
+      - tcpdump
+      - vim
+      - wget

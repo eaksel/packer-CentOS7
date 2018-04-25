@@ -67,32 +67,29 @@
     {
       "type": "shell",
       "execute_command": "echo 'packer'|{{.Vars}} sudo -S -E bash '{{.Path}}'",
-      "scripts": [
-        "scripts/packages.sh"
+      "inline": [
+        "yum -y install epel-release",
+        "yum -y update", 
+        "yum -y install ansible"
       ]
     },
     {
-      "type": "shell",
-      "execute_command": "echo 'packer'|{{.Vars}} sudo -S -E bash '{{.Path}}'",
-      "scripts": [
-        "scripts/customize.sh"
-      ]
+      "type": "ansible-local",
+      "playbook_file": "scripts/packages.yml"
     },
     {
-      "type": "shell",
+      "type": "ansible-local",
+      "playbook_file": "scripts/customize.yml"
+    },
+    {
+      "type": "ansible-local",
       "only": ["vmware-iso"],
-      "execute_command": "echo 'packer'|{{.Vars}} sudo -S -E bash '{{.Path}}'",
-      "scripts": [
-          "scripts/vmware.sh"
-      ]
+      "playbook_file": "scripts/vmware.yml"
     },
     {
-      "type": "shell",
+      "type": "ansible-local",
       "only": ["virtualbox-iso"],
-      "execute_command": "echo 'packer'|{{.Vars}} sudo -S -E bash '{{.Path}}'",
-      "scripts": [
-          "scripts/virtualbox.sh"
-      ]
+      "playbook_file": "scripts/virtualbox.yml"
     },
     {
       "type": "shell",

@@ -1,5 +1,7 @@
 #!/bin/bash -eux
 
+yum -y autoremove ansible
+
 yum clean all
 
 # Zero out the rest of the free space using dd, then delete the written file.
