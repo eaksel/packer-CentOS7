@@ -12,7 +12,7 @@
     yum:
       name: "*"
       state: latest
-  - name: Ensure a list of packages installed
+  - name: Ensure a list of packages is installed
     yum:
       name: "{{ packages }}"
       state: latest
