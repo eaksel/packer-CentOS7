@@ -75,21 +75,7 @@
     },
     {
       "type": "ansible-local",
-      "playbook_file": "scripts/packages.yml"
-    },
-    {
-      "type": "ansible-local",
-      "playbook_file": "scripts/customize.yml"
-    },
-    {
-      "type": "ansible-local",
-      "only": ["vmware-iso"],
-      "playbook_file": "scripts/vmware.yml"
-    },
-    {
-      "type": "ansible-local",
-      "only": ["virtualbox-iso"],
-      "playbook_file": "scripts/virtualbox.yml"
+      "playbook_file": "scripts/setup.yml"
     },
     {
       "type": "shell",
