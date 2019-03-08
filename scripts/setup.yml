@@ -55,13 +55,6 @@
     command: update-grub2
     when: ansible_os_family == "Debian"
 
-  - name: Disable postfix (RedHat)
-    service:
-      name: postfix
-      state: stopped
-      enabled: no
-    when: ansible_os_family == "RedHat"
-
   - name: Update CA bundle (RedHat)
     get_url:
       url: https://curl.haxx.se/ca/cacert.pem
