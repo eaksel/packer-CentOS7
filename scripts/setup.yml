@@ -1,16 +1,22 @@
 ---
 - name: "Setup.yml"
-  hosts: all
+  hosts: localhost
   gather_facts: yes
   become: yes
   tasks:
-  - name: Colorize root shell prompt (All)
+  - name: Colorize root shell prompt
     lineinfile:
       path: /root/.bashrc
       line: 'export PS1="\[\033[38;5;11m\]\u\[$(tput sgr0)\]\[\033[38;5;15m\]@\h:\[$(tput sgr0)\]\[\033[38;5;6m\][\w]:\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]"'
       state: present
 
-  - name: Create vim configuration file (All)
+  - name: Alias vi to vim
+    lineinfile:
+      path: /root/.bashrc
+      line: "alias vi='vim'"
+      state: present
+
+  - name: Create vim configuration file
     file:
       path: /root/.vimrc
       state: touch
@@ -18,42 +24,31 @@
       group: root
       mode: 0644
 
-  - name: Configure vim (All)
+  - name: Configure vim
     blockinfile:
       path: /root/.vimrc
       block: |
         set nocompatible
         set number
+        set autoindent
         syntax on
         highlight Comment ctermfg=LightCyan
       marker: ""
       state: present
 
-  - name: Disable UseDNS (All)
+  - name: Disable UseDNS
     lineinfile:
       path: /etc/ssh/sshd_config
       regexp: "^UseDNS"
       line: "UseDNS no"
       state: present
 
-  - name: Disable GSSAPIAuthentication (All)
+  - name: Disable GSSAPIAuthentication
     lineinfile:
       path: /etc/ssh/sshd_config
       regexp: "^GSSAPIAuthentication"
       line: "GSSAPIAuthentication no"
       state: present
-
-  - name: Disable quiet boot mode (Debian)
-    lineinfile:
-      path: /etc/default/grub
-      regexp: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet"'
-      line: 'GRUB_CMDLINE_LINUX_DEFAULT=""'
-      state: present
-    when: ansible_os_family == "Debian"
-
-  - name: Update grub2 (Debian)
-    command: update-grub2
-    when: ansible_os_family == "Debian"
 
   - name: Update CA bundle (RedHat)
     get_url:
@@ -61,29 +56,6 @@
       dest: /etc/pki/tls/certs/ca-bundle.crt 
       force: yes
     when: ansible_os_family == "RedHat"
-
-  - name: Upgrade all packages (Debian)
-    apt:
-      update_cache: yes
-      upgrade: dist
-    when: ansible_os_family == "Debian"
-
-  - name: Ensure a list of packages is installed (Debian)
-    apt:
-      name: "{{ packages }}"
-      state: latest
-    vars:
-      packages:
-      - bash-completion
-      - ccze
-      - curl
-      - git
-      - rsync
-      - screen
-      - tcpdump
-      - vim
-      - wget
-    when: ansible_os_family == "Debian"
 
   - name: Install epel repo (RedHat)
     yum:
@@ -97,7 +69,7 @@
       state: latest
     when: ansible_os_family == "RedHat"
 
-  - name: Ensure a list of packages is installed (RedHat)
+  - name: Install packages (RedHat)
     yum:
       name: "{{ packages }}"
       state: latest
@@ -114,18 +86,7 @@
       - wget
     when: ansible_os_family == "RedHat"
 
-  - name: Ensure dependencies for VirtualBox Guest Additions are installed (Debian)
-    apt:
-      name: "{{ packages }}"
-      state: latest
-    vars:
-      packages:
-      - dkms
-    when:
-      - ansible_os_family == "Debian"
-      - ansible_virtualization_type == "virtualbox"
-
-  - name: Ensure dependencies for VirtualBox Guest Additions are installed (RedHat)
+  - name: Install dependencies for VirtualBox Guest Additions (RedHat)
     yum:
       name: "{{ packages }}"
       state: latest
@@ -135,6 +96,9 @@
       - dkms
       - kernel-devel
       - kernel-headers
+      - gcc
+      - make
+      - perl
     when:
       - ansible_os_family == "RedHat"
       - ansible_virtualization_type == "virtualbox"
@@ -155,7 +119,7 @@
   - name: Umount VBoxGuestAdditions.iso
     mount:
       path: /mnt
-      state: unmounted
+      state: absent
     when: ansible_virtualization_type == "virtualbox"
 
   - name: Delete VBoxGuestAdditions.iso
@@ -163,14 +127,6 @@
       path: /home/packer/VBoxGuestAdditions.iso
       state: absent
     when: ansible_virtualization_type == "virtualbox"
-
-  - name: Install open-vm-tools (Debian)
-    apt:
-      name: open-vm-tools
-      state: latest
-    when: 
-      - ansible_os_family == "Debian"
-      - ansible_virtualization_type == "VMware"
 
   - name: Install open-vm-tools (RedHat)
     yum:
