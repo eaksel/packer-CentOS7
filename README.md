@@ -22,6 +22,7 @@ To create a CentOS 7 VM image using VMware Workstation use the following command
 ```cmd
 cd c:\packer-CentOS7
 packer build -only=vmware-iso centos7.json
+packer build -only=vmware-iso centos7_uefi.json
 ```
 
 To create a CentOS 7 VM image using Oracle VM VirtualBox use the following commands:
@@ -29,18 +30,19 @@ To create a CentOS 7 VM image using Oracle VM VirtualBox use the following comma
 ```cmd
 cd c:\packer-CentOS7
 packer build -only=virtualbox-iso centos7.json
+packer build -only=virtualbox-iso centos7_uefi.json
 ```
 
 *If you omit the keyword "-only=" both the Workstation and Virtualbox VMs will be created.*
 
-By default the .iso of CentOS 7 is pulled from <http://miroir.univ-paris13.fr/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso>
+By default the .iso of CentOS 7 is pulled from <http://miroir.univ-paris13.fr/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-NetInstall-2009.iso>
 
 You can change the URL to one closer to your build server. To do so change the **"iso_url"** parameter in the **"variables"** section of the centos7.json file.
 
 ```json
 {
   "variables": {
-      "iso_url": "http://miroir.univ-paris13.fr/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1804.iso"
+      "iso_url": "http://miroir.univ-paris13.fr/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-NetInstall-2009.iso"
 }
 ```
 
